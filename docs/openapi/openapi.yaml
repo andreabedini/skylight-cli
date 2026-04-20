@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Unofficial Skylight API (Community Reference)
-  version: 0.3.0
+  version: 0.4.0
   description: |
     Reverse-engineered reference for Skylight endpoints based on observed traffic.
     JSON:API-style resources are common (type, id, attributes, relationships).
@@ -9,6 +9,8 @@ info:
 servers:
   - url: https://app.ourskylight.com
 tags:
+  - name: Auth
+  - name: User
   - name: Frames
   - name: Chores
   - name: Categories
@@ -16,6 +18,8 @@ tags:
   - name: Lists
   - name: TaskBox
   - name: Calendars
+  - name: Meals
+  - name: Notifications
   - name: Rewards
 
 components:
@@ -23,7 +27,9 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
+      description: |
+        Opaque OAuth 2.0 Bearer token obtained via POST /oauth/token.
+        Tokens expire after 7200 seconds (2 hours). Not a JWT.
     basicToken:
       type: http
       scheme: basic
@@ -357,7 +363,250 @@ components:
           $ref: '#/components/schemas/RewardPointAttributes'
       required: [type, id]
 
+    # ---- OAuth ----
+    OAuthTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: Opaque Bearer token for API requests. Expires after expires_in seconds.
+        token_type:
+          type: string
+          enum: [Bearer]
+        expires_in:
+          type: integer
+          description: TTL in seconds. Observed value is 7200.
+          example: 7200
+        refresh_token:
+          type: string
+          description: Rotated on each use. Exchange for a new access_token.
+        scope:
+          type: string
+          description: "Observed value: 'everything'"
+          example: everything
+        created_at:
+          type: integer
+          description: Unix timestamp when the token was issued.
+      required: [access_token, token_type, expires_in, refresh_token, scope, created_at]
+
+    # ---- User ----
+    UserAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    UserResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [user]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/UserAttributes'
+      required: [type, id]
+
+    PlusAccessAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    # ---- Meals ----
+    MealSittingAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    MealSittingResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [meal_sitting]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/MealSittingAttributes'
+      required: [type, id]
+
+    # ---- Notifications ----
+    EventNotificationSettingAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    EventNotificationSettingResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [event_notification_setting]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/EventNotificationSettingAttributes'
+      required: [type, id]
+
 paths:
+  # ---- Auth ----
+  /oauth/token:
+    post:
+      tags: [Auth]
+      summary: Refresh OAuth access token
+      description: |
+        Exchange a refresh token for a new access/refresh token pair.
+        Refresh tokens rotate on each use. Pass device-context fields to match
+        observed app behaviour; their exact enforcement is unknown.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  enum: [refresh_token]
+                client_id:
+                  type: string
+                  enum: [skylight-mobile]
+                refresh_token:
+                  type: string
+                skylight_api_client_device_fingerprint:
+                  type: string
+                  description: UUID identifying the device installation.
+                skylight_api_client_device_platform:
+                  type: string
+                  description: "Observed value: ios"
+                skylight_api_client_device_name:
+                  type: string
+                  description: "e.g., 'iPhone'"
+                skylight_api_client_device_os_version:
+                  type: string
+                skylight_api_client_device_app_version:
+                  type: string
+                skylight_api_client_device_hardware:
+                  type: string
+                  description: "Device model identifier, e.g. 'iPhone14,5'"
+              required: [grant_type, client_id, refresh_token]
+      responses:
+        '200':
+          description: New token pair issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthTokenResponse'
+        '401':
+          description: Invalid or expired refresh token
+
+  # ---- User ----
+  /api/user:
+    get:
+      tags: [User]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+        - basicToken: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserResource'
+        '304':
+          description: Not Modified
+
+  /api/plus_access:
+    get:
+      tags: [User]
+      summary: Get Plus/premium subscription status
+      security:
+        - bearerAuth: []
+        - basicToken: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    description: Plus access details. Schema to be expanded as captured.
+                    additionalProperties: true
+        '304':
+          description: Not Modified
+
+  # ---- Frames (by type) ----
+  /api/frames/tv:
+    get:
+      tags: [Frames]
+      summary: List TV-type frames
+      security:
+        - bearerAuth: []
+        - basicToken: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/FrameResource' }
+        '304':
+          description: Not Modified
+
+  /api/frames/calendar:
+    get:
+      tags: [Frames]
+      summary: List calendar-type frames
+      security:
+        - bearerAuth: []
+        - basicToken: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/FrameResource' }
+        '304':
+          description: Not Modified
+
+  /api/frames/photo:
+    get:
+      tags: [Frames]
+      summary: List photo-type frames
+      security:
+        - bearerAuth: []
+        - basicToken: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/FrameResource' }
+        '304':
+          description: Not Modified
+
   # ---- Frames ----
   /api/frames/{frameId}:
     get:
@@ -414,6 +663,9 @@ paths:
           schema:
             type: string
             enum: [linked_to_profile]
+        - in: query
+          name: include_up_for_grabs
+          schema: { type: boolean }
       responses:
         '200':
           description: OK
@@ -721,6 +973,10 @@ paths:
           name: redeemed_at_min
           required: false
           schema: { type: string, format: date-time }
+        - in: query
+          name: redeemed_at_max
+          required: false
+          schema: { type: string, format: date-time }
       responses:
         '200':
           description: OK
@@ -758,5 +1014,79 @@ paths:
                   data:
                     type: array
                     items: { $ref: '#/components/schemas/RewardPointResource' }
+        '304':
+          description: Not Modified
+
+  # ---- Meals ----
+  /api/frames/{frameId}/meals/sittings:
+    get:
+      tags: [Meals]
+      summary: List meal sittings for a date range
+      description: |
+        Observed query params: date_min, date_max (YYYY-MM-DD).
+        Include param supports: meal_category, meal_recipe.
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: date_min
+          required: true
+          schema: { type: string, format: date }
+        - in: query
+          name: date_max
+          required: true
+          schema: { type: string, format: date }
+        - in: query
+          name: include
+          required: false
+          schema:
+            type: string
+            description: "CSV: meal_category,meal_recipe"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/MealSittingResource' }
+                  included:
+                    type: array
+                    items: { type: object, additionalProperties: true }
+        '304':
+          description: Not Modified
+
+  # ---- Notifications ----
+  /api/frames/{frameId}/event_notification_settings:
+    get:
+      tags: [Notifications]
+      summary: List event notification settings
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/EventNotificationSettingResource' }
         '304':
           description: Not Modified

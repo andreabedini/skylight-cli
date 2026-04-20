@@ -1,12 +1,58 @@
-# Authentication Guide (How to Capture Your Token)
+# Authentication Guide
 
 > **Unofficial reference** — Use only with accounts you own or are authorized to use. Never commit real tokens.
 
 Skylight requests observed so far use either:
 - `Authorization: Basic <opaque token>` — **Not** username:password; an opaque bearer-like token.
-- `Authorization: Bearer <jwt>` — Standard bearer token (likely JWT).
+- `Authorization: Bearer <token>` — Opaque OAuth 2.0 Bearer token (not a JWT). Expires after 2 hours.
 
-This guide shows how to capture a token safely for testing documented endpoints.
+This guide explains the token refresh flow and how to capture tokens for testing documented endpoints.
+
+---
+
+## OAuth Token Refresh
+
+The app refreshes its access token via a standard OAuth 2.0 refresh-token grant:
+
+```
+POST https://app.ourskylight.com/oauth/token
+Content-Type: application/x-www-form-urlencoded
+```
+
+**Request body fields:**
+
+| Field | Value |
+|-------|-------|
+| `grant_type` | `refresh_token` |
+| `client_id` | `skylight-mobile` |
+| `refresh_token` | Your current refresh token |
+| `skylight_api_client_device_fingerprint` | UUID identifying the device installation |
+| `skylight_api_client_device_platform` | `ios` (or `android`) |
+| `skylight_api_client_device_name` | Human-readable device name (e.g. `iPhone`) |
+| `skylight_api_client_device_os_version` | OS version string |
+| `skylight_api_client_device_app_version` | App version string |
+| `skylight_api_client_device_hardware` | Device model identifier (e.g. `iPhone14,5`) |
+
+The device-context fields (`skylight_api_client_device_*`) are sent by the app on every token refresh. Their server-side enforcement is unknown; omitting them may still work.
+
+**Response (200 OK):**
+
+```json
+{
+  "access_token": "REDACTED",
+  "token_type": "Bearer",
+  "expires_in": 7200,
+  "refresh_token": "REDACTED",
+  "scope": "everything",
+  "created_at": 1775915141
+}
+```
+
+Key points:
+- **Access tokens expire after 7200 seconds (2 hours).**
+- **Refresh tokens rotate on every use** — save the new `refresh_token` from each response.
+- The `scope` value observed is `"everything"`.
+- Use the returned `access_token` as `Authorization: Bearer <access_token>` on subsequent API calls.
 
 ---
 
