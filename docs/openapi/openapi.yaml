@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Unofficial Skylight API (Community Reference)
-  version: 0.4.0
+  version: 0.5.0
   description: |
     Reverse-engineered reference for Skylight endpoints based on observed traffic.
     JSON:API-style resources are common (type, id, attributes, relationships).
@@ -21,6 +21,10 @@ tags:
   - name: Meals
   - name: Notifications
   - name: Rewards
+  - name: Messages
+  - name: Albums
+  - name: Automation
+  - name: System
 
 components:
   securitySchemes:
@@ -67,6 +71,18 @@ components:
         profile_pic_url:
           type: string
           nullable: true
+          description: Also observed as 'profile_picture' in some contexts.
+        avatar_id:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date
+          nullable: true
+        dietary_preferences:
+          type: array
+          nullable: true
+          items: { type: string }
       additionalProperties: true
 
     CategoryResource:
@@ -127,6 +143,9 @@ components:
           nullable: true
         position:
           type: integer
+          nullable: true
+        group:
+          type: string
           nullable: true
       additionalProperties: true
 
@@ -315,7 +334,63 @@ components:
 
     CalendarEventAttributes:
       type: object
-      description: Placeholder; fields will be added as captured.
+      properties:
+        summary:
+          type: string
+        description:
+          type: string
+          nullable: true
+        kind:
+          type: string
+          nullable: true
+          description: "e.g., 'event'"
+        starts_at:
+          type: string
+          format: date-time
+          nullable: true
+        ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        all_day:
+          type: boolean
+          nullable: true
+        rrule:
+          type: string
+          nullable: true
+          description: RFC 5545 RRULE for recurring events.
+        timezone:
+          type: string
+          nullable: true
+          description: IANA timezone identifier.
+        location:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          format: double
+          nullable: true
+        lng:
+          type: number
+          format: double
+          nullable: true
+        countdown_enabled:
+          type: boolean
+          nullable: true
+        calendar_id:
+          type: string
+          nullable: true
+        calendar_account_id:
+          type: string
+          nullable: true
+        invited_emails:
+          type: array
+          nullable: true
+          items: { type: string }
+        category_ids:
+          type: array
+          nullable: true
+          items: { type: string }
       additionalProperties: true
 
     CalendarEventResource:
@@ -333,6 +408,28 @@ components:
     # ---- Rewards ----
     RewardAttributes:
       type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        emoji_icon:
+          type: string
+          nullable: true
+        point_value:
+          type: integer
+          nullable: true
+        category_id:
+          type: string
+          nullable: true
+        category_ids:
+          type: array
+          nullable: true
+          items: { type: string }
+        respawn_on_redemption:
+          type: boolean
+          nullable: true
       additionalProperties: true
 
     RewardResource:
@@ -428,6 +525,174 @@ components:
           type: string
         attributes:
           $ref: '#/components/schemas/MealSittingAttributes'
+      required: [type, id]
+
+    # ---- Messages ----
+    MessageAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    MessageResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [message]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/MessageAttributes'
+      required: [type, id]
+
+    CommentAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    CommentResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [comment]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/CommentAttributes'
+      required: [type, id]
+
+    LikeResource:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      properties:
+        type:
+          type: string
+          enum: [like]
+        id:
+          type: string
+      required: [type, id]
+      additionalProperties: true
+
+    # ---- Albums ----
+    AlbumAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    AlbumResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [album]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/AlbumAttributes'
+      required: [type, id]
+
+    # ---- Automation ----
+    AutoCreationIntentAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    AutoCreationIntentResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [auto_creation_intent]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/AutoCreationIntentAttributes'
+      required: [type, id]
+
+    # ---- Meal recipes & categories ----
+    MealRecipeAttributes:
+      type: object
+      properties:
+        summary:
+          type: string
+        description:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        rrule:
+          type: string
+          nullable: true
+          description: RFC 5545 RRULE for recurring meal sittings.
+        meal_category_id:
+          type: string
+          nullable: true
+      additionalProperties: true
+
+    MealRecipeResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [meal_recipe]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/MealRecipeAttributes'
+      required: [type, id]
+
+    MealCategoryAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    MealCategoryResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [meal_category]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/MealCategoryAttributes'
+      required: [type, id]
+
+    # ---- System ----
+    AvatarAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    AvatarResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [avatar]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/AvatarAttributes'
+      required: [type, id]
+
+    ColorAttributes:
+      type: object
+      description: Placeholder; fields will be added as captured.
+      additionalProperties: true
+
+    ColorResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [color]
+        id:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/ColorAttributes'
       required: [type, id]
 
     # ---- Notifications ----
@@ -724,6 +989,87 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/CategoryResource' }
 
+  /api/frames/{frameId}/chores/{choreId}:
+    put:
+      tags: [Chores]
+      summary: Update a chore
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: choreId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: apply_to
+          required: false
+          schema:
+            type: string
+            description: "Scope for recurring chore changes. Observed values: 'this', 'this_and_following', 'all'"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [chore] }
+                    attributes: { $ref: '#/components/schemas/ChoreAttributes' }
+                    relationships: { $ref: '#/components/schemas/ChoreRelationships' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ChoreResource' }
+                  included:
+                    type: array
+                    items: { $ref: '#/components/schemas/CategoryResource' }
+    delete:
+      tags: [Chores]
+      summary: Delete a chore
+      description: |
+        Deletes a chore by ID. For recurring chores, use the `apply_to` param to
+        control whether only this occurrence, this and following, or all occurrences
+        are deleted. An alternative form using a date string as `choreId` is also
+        observed (delete occurrence on a specific date).
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: choreId
+          required: true
+          schema: { type: string }
+          description: Chore ID or YYYY-MM-DD date (for date-based deletion of recurring chores).
+        - in: query
+          name: apply_to
+          required: false
+          schema:
+            type: string
+            description: "Scope: 'this', 'this_and_following', 'all'"
+      responses:
+        '200':
+          description: OK
+        '204':
+          description: No Content
+
   # ---- Categories ----
   /api/frames/{frameId}/categories:
     get:
@@ -750,6 +1096,108 @@ paths:
                     items: { $ref: '#/components/schemas/CategoryResource' }
         '304':
           description: Not Modified
+
+  /api/frames/{frameId}/categories/{categoryId}:
+    get:
+      tags: [Categories]
+      summary: Get category by id
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: categoryId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CategoryResource' }
+    put:
+      tags: [Categories]
+      summary: Update a category
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: categoryId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [category] }
+                    attributes: { $ref: '#/components/schemas/CategoryAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CategoryResource' }
+
+  /api/frames/{frameId}/categories/{categoryId}/family_member:
+    put:
+      tags: [Categories]
+      summary: Update the family member profile for a category
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: categoryId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [category] }
+                    attributes: { $ref: '#/components/schemas/CategoryAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CategoryResource' }
 
   # ---- Devices ----
   /api/frames/{frameId}/devices:
@@ -782,7 +1230,7 @@ paths:
   /api/frames/{frameId}/lists:
     get:
       tags: [Lists]
-      summary: List lists
+      summary: List all lists
       security:
         - basicToken: []
         - bearerAuth: []
@@ -804,6 +1252,39 @@ paths:
                     items: { $ref: '#/components/schemas/ListResource' }
         '304':
           description: Not Modified
+    post:
+      tags: [Lists]
+      summary: Create a list
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [list] }
+                    attributes: { $ref: '#/components/schemas/ListAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ListResource' }
 
   /api/frames/{frameId}/lists/{listId}:
     get:
@@ -840,8 +1321,209 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/ListItemResource' }
 
+    put:
+      tags: [Lists]
+      summary: Update a list
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: listId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [list] }
+                    attributes: { $ref: '#/components/schemas/ListAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ListResource' }
+    delete:
+      tags: [Lists]
+      summary: Delete a list
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: listId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+        '204':
+          description: No Content
+
+  /api/frames/{frameId}/lists/{listId}/list_items:
+    post:
+      tags: [Lists]
+      summary: Create a list item
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: listId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [list_item] }
+                    attributes: { $ref: '#/components/schemas/ListItemAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ListItemResource' }
+
+  /api/frames/{frameId}/lists/{listId}/list_items/bulk_update_section:
+    put:
+      tags: [Lists]
+      summary: Bulk move list items to a section
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: listId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    item_ids:
+                      type: array
+                      items: { type: string }
+                    section:
+                      type: string
+                      nullable: true
+              additionalProperties: true
+      responses:
+        '200':
+          description: OK
+
+  /api/frames/{frameId}/lists/{listId}/list_items/{itemId}:
+    put:
+      tags: [Lists]
+      summary: Update a list item
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: listId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: itemId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [list_item] }
+                    attributes: { $ref: '#/components/schemas/ListItemAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ListItemResource' }
+
   # ---- Task Box ----
   /api/frames/{frameId}/task_box/items:
+    get:
+      tags: [TaskBox]
+      summary: List task box items
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/TaskBoxItemResource' }
+        '304':
+          description: Not Modified
     post:
       tags: [TaskBox]
       summary: Create a task box item
@@ -910,6 +1592,7 @@ paths:
     get:
       tags: [Calendars]
       summary: List calendar events for a date range
+
       security:
         - basicToken: []
         - bearerAuth: []
@@ -955,12 +1638,117 @@ paths:
                         - $ref: '#/components/schemas/SourceCalendarResource'
         '304':
           description: Not Modified
+    post:
+      tags: [Calendars]
+      summary: Create a calendar event
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [calendar_event] }
+                    attributes: { $ref: '#/components/schemas/CalendarEventAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CalendarEventResource' }
+
+  /api/frames/{frameId}/calendar_events/{eventId}:
+    put:
+      tags: [Calendars]
+      summary: Update a calendar event
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: eventId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: apply_to
+          required: false
+          schema:
+            type: string
+            description: "Scope for recurring event changes: 'this', 'this_and_following', 'all'"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [calendar_event] }
+                    attributes: { $ref: '#/components/schemas/CalendarEventAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CalendarEventResource' }
+    delete:
+      tags: [Calendars]
+      summary: Delete a calendar event
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: eventId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: apply_to
+          required: false
+          schema:
+            type: string
+            description: "Scope: 'this', 'this_and_following', 'all'"
+      responses:
+        '200':
+          description: OK
+        '204':
+          description: No Content
 
   # ---- Rewards ----
   /api/frames/{frameId}/rewards:
     get:
       tags: [Rewards]
       summary: List rewards
+
       security:
         - basicToken: []
         - bearerAuth: []
@@ -990,11 +1778,180 @@ paths:
                     items: { $ref: '#/components/schemas/RewardResource' }
         '304':
           description: Not Modified
+    post:
+      tags: [Rewards]
+      summary: Create a reward
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [reward] }
+                    attributes: { $ref: '#/components/schemas/RewardAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/RewardResource' }
+
+  /api/frames/{frameId}/rewards/{rewardId}:
+    get:
+      tags: [Rewards]
+      summary: Get a reward by id
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: rewardId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/RewardResource' }
+    patch:
+      tags: [Rewards]
+      summary: Update a reward
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: rewardId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [reward] }
+                    attributes: { $ref: '#/components/schemas/RewardAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/RewardResource' }
+    delete:
+      tags: [Rewards]
+      summary: Delete a reward
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: rewardId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+        '204':
+          description: No Content
+
+  /api/frames/{frameId}/rewards/{rewardId}/redeem:
+    post:
+      tags: [Rewards]
+      summary: Redeem a reward
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: rewardId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/RewardResource' }
+
+  /api/frames/{frameId}/rewards/{rewardId}/unredeem:
+    post:
+      tags: [Rewards]
+      summary: Un-redeem a reward
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: rewardId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/RewardResource' }
 
   /api/frames/{frameId}/reward_points:
     get:
       tags: [Rewards]
       summary: List reward points
+
       security:
         - basicToken: []
         - bearerAuth: []
@@ -1016,8 +1973,229 @@ paths:
                     items: { $ref: '#/components/schemas/RewardPointResource' }
         '304':
           description: Not Modified
+    post:
+      tags: [Rewards]
+      summary: Create a reward point entry
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [reward_point] }
+                    attributes: { $ref: '#/components/schemas/RewardPointAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/RewardPointResource' }
 
   # ---- Meals ----
+  /api/frames/{frameId}/meals/categories:
+    get:
+      tags: [Meals]
+      summary: List meal categories
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/MealCategoryResource' }
+        '304':
+          description: Not Modified
+
+  /api/frames/{frameId}/meals/recipes:
+    get:
+      tags: [Meals]
+      summary: List meal recipes
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/MealRecipeResource' }
+        '304':
+          description: Not Modified
+    post:
+      tags: [Meals]
+      summary: Create a meal recipe
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [meal_recipe] }
+                    attributes: { $ref: '#/components/schemas/MealRecipeAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/MealRecipeResource' }
+
+  /api/frames/{frameId}/meals/recipes/{recipeId}:
+    get:
+      tags: [Meals]
+      summary: Get a meal recipe by id
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/MealRecipeResource' }
+    patch:
+      tags: [Meals]
+      summary: Update a meal recipe
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [meal_recipe] }
+                    attributes: { $ref: '#/components/schemas/MealRecipeAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/MealRecipeResource' }
+    delete:
+      tags: [Meals]
+      summary: Delete a meal recipe
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+        '204':
+          description: No Content
+
+  /api/frames/{frameId}/meals/recipes/{recipeId}/add_to_grocery_list:
+    post:
+      tags: [Meals]
+      summary: Add a recipe's ingredients to the grocery list
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+
   /api/frames/{frameId}/meals/sittings:
     get:
       tags: [Meals]
@@ -1061,6 +2239,314 @@ paths:
                   included:
                     type: array
                     items: { type: object, additionalProperties: true }
+        '304':
+          description: Not Modified
+    post:
+      tags: [Meals]
+      summary: Create a meal sitting
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [meal_sitting] }
+                    attributes: { $ref: '#/components/schemas/MealSittingAttributes' }
+                  required: [type, attributes]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/MealSittingResource' }
+
+  /api/frames/{frameId}/meals/sittings/{sittingId}/instances:
+    get:
+      tags: [Meals]
+      summary: List instances of a recurring meal sitting
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: sittingId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/MealSittingResource' }
+
+  # ---- Auth (session-based) ----
+  /api/sessions:
+    post:
+      tags: [Auth]
+      summary: Create a session (login)
+      description: |
+        Session-based login observed alongside the OAuth refresh flow.
+        Exact request body fields (email/password or token) are not yet captured.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Session created; returns user and token data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          description: Invalid credentials
+
+  /api/users:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      description: Exact request body fields not yet captured.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: User created.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  # ---- Messages ----
+  /api/frames/{frameId}/messages:
+    get:
+      tags: [Messages]
+      summary: List messages for a frame
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/MessageResource' }
+        '304':
+          description: Not Modified
+
+  /api/frames/{frameId}/messages/{messageId}:
+    get:
+      tags: [Messages]
+      summary: Get a message by id
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: messageId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/MessageResource' }
+
+  /api/frames/{frameId}/messages/{messageId}/comments:
+    get:
+      tags: [Messages]
+      summary: List comments on a message
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: messageId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/CommentResource' }
+
+  /api/frames/{frameId}/messages/{messageId}/all_likes:
+    get:
+      tags: [Messages]
+      summary: List likes on a message
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: messageId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/LikeResource' }
+
+  # ---- Albums ----
+  /api/frames/{frameId}/albums:
+    get:
+      tags: [Albums]
+      summary: List albums for a frame
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/AlbumResource' }
+        '304':
+          description: Not Modified
+
+  # ---- Automation ----
+  /api/frames/{frameId}/auto_creation_intents/{intentId}:
+    get:
+      tags: [Automation]
+      summary: Get an auto-creation intent by id
+      security:
+        - basicToken: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: intentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/AutoCreationIntentResource' }
+
+  # ---- System ----
+  /api/avatars:
+    get:
+      tags: [System]
+      summary: List available avatar images
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/AvatarResource' }
+        '304':
+          description: Not Modified
+
+  /api/colors:
+    get:
+      tags: [System]
+      summary: List available colours
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ColorResource' }
         '304':
           description: Not Modified
 
