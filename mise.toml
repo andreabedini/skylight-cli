@@ -1,0 +1,18 @@
+[env]
+_.path = ["bin"]
+
+[tools]
+"github:daveshanley/vacuum" = "latest"
+"github:onlycli/onlycli" = "latest"
+
+[tasks.generate-cli]
+run = '''
+onlycli generate --spec docs/openapi/openapi.yaml --name skylight --out cli
+cd cli && go mod tidy
+'''
+
+[tasks.build]
+dir = "cli"
+run = '''
+go build -o {{config_root}}/bin/skylight .
+'''

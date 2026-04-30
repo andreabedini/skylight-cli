@@ -2,4 +2,11 @@
 .DS_Store
 *.env
 *.local
+mise.local.toml
 examples/*-raw*.json
+
+# Raw HAR captures contain live tokens and PII — keep local only.
+# Redacted, shareable evidence belongs in examples/.
+captures/
+
+cli/skylight
