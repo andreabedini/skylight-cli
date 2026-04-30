@@ -15,7 +15,7 @@
   <script>
     window.onload = () => {
       const ui = SwaggerUIBundle({
-        url: "/Skylight/openapi/openapi.yaml",   // ✅ prefix with repo name
+        url: "openapi/openapi.yaml",             // relative to this file (docs/openapi/openapi.yaml)
         dom_id: "#swagger-ui",                   // ✅ matches <div id="swagger-ui">
         presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
       });

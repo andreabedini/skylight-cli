@@ -13,9 +13,10 @@
 
 ## Repo Organization
 
-- `openapi/openapi.yaml` — OpenAPI 3.1 spec for discovered endpoints.
+- `docs/openapi/openapi.yaml` — OpenAPI 3.0.3 spec for discovered endpoints. The source of truth everything else derives from.
 - `examples/` — Example requests/responses (redacted).
-- `docs/` — How-to guides (auth, capturing traffic, etc.).
+- `docs/` — How-to guides (auth, capturing traffic, etc.) and static spec viewers.
+- `cli/` — Go CLI generated from the spec by [`onlycli`](https://github.com/onlycli/onlycli). See [CLI](#cli).
 - `CONTRIBUTING.md` — How to add endpoints/schemas.
 - `SECURITY.md` — Responsible redaction guidelines.
 - `LICENSE` — Default: CC BY-NC 4.0.
@@ -47,8 +48,28 @@ Tokens rotate. Treat them as secrets. See [docs/auth.md](docs/auth.md) for guida
 
 - **Capture**: Charles / Proxyman / mitmproxy.
 - **Inspect**: Confirm hostnames and query params.
-- **Document**: Update `openapi/openapi.yaml` with new schemas/endpoints.
+- **Document**: Update `docs/openapi/openapi.yaml` with new schemas/endpoints.
 - **Test**: Postman/Insomnia against your own account.
+
+## CLI
+
+A Go CLI is generated from the spec, so it stays in lockstep with the documented endpoints. Each operation becomes a subcommand grouped by tag (e.g. `skylight chores get-api-frames-frame-id --frame-id <id>`).
+
+Tooling is pinned in `mise.toml` ([mise](https://mise.jdx.dev/)); run `mise install` once to get [`onlycli`](https://github.com/onlycli/onlycli) and [`vacuum`](https://github.com/daveshanley/vacuum).
+
+```bash
+# Regenerate the CLI after editing the spec (never hand-edit the generated Go)
+mise run generate
+
+# Build the binary (outputs cli/skylight)
+mise run build
+
+# Authenticate and call an endpoint
+./cli/skylight auth login --client-id <id>
+./cli/skylight chores get-api-frames-frame-id --frame-id <id>
+```
+
+Config lives at `~/.config/skylight/config.json` and supports named profiles; see `skylight config --help` and `skylight auth --help`.
 
 ## Roadmap
 
@@ -86,6 +107,7 @@ python3 -m http.server 8080
 
 - **v0.2.0** — Categories, Devices, Lists, Task Box endpoints; Basic auth scheme.  
 - **v0.3.0** — Frames, Source Calendars, Calendar Events, Rewards, Reward Points; expanded schemas; corrected color formats; explicit `chore.status`.
+- **v0.5.1** — Schema corrections from 2026-04 captures: `chore.recurrence_set` is an array of RRULE strings (not a string); added `chore.series`/`timer_seconds`/`up_for_grabs` and chore relationships (`completed_category`, `habit_tracker`, `linked_task_group`); added calendar-event fields (`uid`, `status`, `recurring`, `recurring_config`, `master_event_id`, `source`, `editable`, `owner_email`, `supports_notification_settings`); documented the `category_detail` type and `profile_picture_urls`; corrected `GET /reward_points` to a bare (non-JSON:API) array of per-category balances. Added redacted examples for categories, calendar events, and reward points.
 
 ---
 
