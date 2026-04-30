@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://app.ourskylight.com/api/frames/REDACTED/reward_points",
+    "headers": {
+      "Authorization": "Bearer REDACTED",
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": [
+      {
+        "category_id": 18804068,
+        "lifetime_points_earned": 0,
+        "current_point_balance": 0
+      }
+    ]
+  },
+  "notes": "GET /api/frames/{frameId}/reward_points returns a BARE JSON array of per-category balances — it is NOT JSON:API-wrapped (no top-level data/type/id), unlike most endpoints. category_id is a numeric reference to a category. Discovered from a 2026-04 capture."
+}

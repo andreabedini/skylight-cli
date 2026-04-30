@@ -1,0 +1,53 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://app.ourskylight.com/api/frames/REDACTED/categories",
+    "headers": {
+      "Authorization": "Bearer REDACTED",
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "data": [
+        {
+          "id": "CATEGORY_REDACTED",
+          "type": "category_detail",
+          "attributes": {
+            "id": "CATEGORY_REDACTED",
+            "color": "#FDB305",
+            "selected_for_chore_chart": false,
+            "linked_to_profile": false,
+            "label": "Family",
+            "profile_picture_urls": {
+              "original": null,
+              "xl": null,
+              "large": null,
+              "medium": null,
+              "small": null
+            }
+          },
+          "relationships": {
+            "family_member": { "data": null },
+            "source_calendars": {
+              "data": [
+                { "id": "SOURCE_CALENDAR_REDACTED", "type": "source_calendar" }
+              ]
+            },
+            "source_calendar_categorizations": {
+              "data": [
+                { "id": "REDACTED", "type": "source_calendar_categorization" }
+              ]
+            },
+            "avatar": { "data": null }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "GET /api/frames/{frameId}/categories returns the 'category_detail' resource type (note profile_picture_urls). Categories embedded via `include` in other resources use the leaner 'category' type. The numeric 'id' attribute is redacted here; in real traffic it matches the resource id. Discovered from a 2026-04 capture."
+}
