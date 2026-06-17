@@ -31,6 +31,35 @@ make API calls.
   generated code to add one.
 - Target platform is Linux desktop (XDG, `xdg-open`, `.desktop` scheme handlers).
 
+## Validation (2026-06-17)
+
+The riskiest assumption — that the authorization server honors our PKCE request — was
+checked manually with `step oauth`:
+
+```
+step oauth --client-id skylight-mobile \
+  --authorization-endpoint https://app.ourskylight.com/oauth/authorize \
+  --token-endpoint https://app.ourskylight.com/oauth/token \
+  --listen-url skylight-family://welcome --scope everything
+```
+
+The browser flow completed and the server redirected to
+`skylight-family://welcome?code=…&state=…` — confirming the server accepts
+`client_id=skylight-mobile`, `redirect_uri=skylight-family://welcome`, `scope=everything`,
+and `code_challenge_method=S256`, and issues an authorization code. The server also tolerated
+an extra `nonce` param `step` adds, so it is not strict about the exact parameter set.
+
+Two things this does **not** confirm:
+
+- **The token exchange.** `step` could not capture the callback (it can only listen on a
+  localhost port, not a `skylight-family://` custom scheme), so the `POST /oauth/token` step
+  was never exercised. It remains the standard PKCE completion and will get its real test when
+  the tool runs end-to-end. The captured code could not be reused to verify it manually because
+  the matching `code_verifier` lived inside `step` and was never printed.
+- **That a localhost redirect would work.** It would not — `step`'s inability to capture the
+  custom-scheme callback is exactly why the socket + scheme-handler relay in this design is
+  required.
+
 ## Approach
 
 A standalone Go binary `skylight-login`, kept entirely separate from `cli/` so
