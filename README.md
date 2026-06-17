@@ -28,7 +28,39 @@ mise run build      # compiles to bin/skylight (on your PATH inside the mise env
 
 ## Authenticate
 
-The API authenticates with an opaque OAuth 2.0 **Bearer** token. The mobile app obtains it via an Authorization Code + PKCE login (see [docs/auth.md](docs/auth.md)); the CLI does **not** implement that browser flow, so supply a token captured from your own session:
+The API authenticates with an opaque OAuth 2.0 **Bearer** token, obtained via an Authorization Code + PKCE login (see [docs/auth.md](docs/auth.md)). There are two ways to get one into the CLI.
+
+### Option A — `skylight-login` (Linux desktop, recommended)
+
+The repo ships a small helper in [`login/`](login/) — a separate binary from the generated CLI — that drives the real browser login and writes the token straight into the CLI config. It uses a `skylight-family://` custom-scheme handler to hand the OAuth callback back to the helper, so register that once:
+
+```bash
+# 1. Build and install the helper (Go 1.22+)
+cd login && go build -o "$HOME/.local/bin/skylight-login" . && cd ..
+
+# 2. Register the scheme handler (one-time)
+cat > ~/.local/share/applications/skylight-family-handler.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Skylight Family Handler
+Exec=skylight-login callback %u
+Terminal=false
+NoDisplay=true
+MimeType=x-scheme-handler/skylight-family;
+EOF
+update-desktop-database ~/.local/share/applications
+```
+
+Then log in:
+
+```bash
+skylight-login login                 # opens the browser; saves the token on success
+skylight-login login --profile work  # write to a specific profile
+```
+
+It opens the browser at `/oauth/authorize`; after you log in, the handler relays the callback over a local Unix socket, and the helper verifies `state`, exchanges the code at `/oauth/token`, writes `access_token` to the active profile in `~/.config/skylight/config.json`, and saves the rotating `refresh_token` to `~/.config/skylight/<profile>.refresh`. Run one login at a time. If the desktop launcher can't find `skylight-login` on its `PATH`, use an absolute path in the `Exec=` line. See [docs/auth.md](docs/auth.md) for details.
+
+### Option B — supply a captured token (any platform)
 
 ```bash
 # Save a token under the "default" profile and select it
@@ -41,7 +73,7 @@ export SKYLIGHT_TOKEN=<BEARER_TOKEN>
 
 `docs/auth.md` explains how to capture a token (proxy / DevTools) and the refresh-token flow the app uses.
 
-> There is a scaffolded `skylight auth login`, but it was generated from the spec's OAuth scheme and uses device-code/client-credentials grants that don't match the real service — use a captured token as above.
+> The generated CLI also has a scaffolded `skylight auth login`, but it was produced from the spec's OAuth scheme and uses device-code/client-credentials grants that don't match the real service — use `skylight-login` or a captured token instead.
 
 ## Usage
 
