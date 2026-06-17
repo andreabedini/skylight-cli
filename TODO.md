@@ -52,7 +52,8 @@ Resources where a single-item endpoint is documented but no list endpoint.
 | Missing | Already have |
 |---------|-------------|
 | `GET /api/frames/{frameId}/auto_creation_intents` | `GET /{intentId}` |
-| `GET /api/frames` (list all frames, any type) | `GET /frames/tv`, `/frames/calendar`, `/frames/photo` |
+
+~~`GET /api/frames` (list all frames, any type)~~ — **documented** (confirmed 200 in a 2026-06 capture).
 
 ---
 

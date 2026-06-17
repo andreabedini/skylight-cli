@@ -6,7 +6,36 @@ Skylight requests observed so far use either:
 - `Authorization: Basic <opaque token>` — **Not** username:password; an opaque bearer-like token.
 - `Authorization: Bearer <token>` — Opaque OAuth 2.0 Bearer token (not a JWT). Expires after 2 hours.
 
-This guide explains the token refresh flow and how to capture tokens for testing documented endpoints.
+This guide explains the authorization flow, the token refresh flow, and how to capture tokens for testing documented endpoints.
+
+---
+
+## OAuth Authorization (initial login)
+
+The app obtains its first tokens via the **OAuth 2.0 Authorization Code grant with PKCE** (RFC 7636). The mobile client opens the browser at:
+
+```
+GET https://app.ourskylight.com/oauth/authorize
+```
+
+**Observed query parameters:**
+
+| Field | Value |
+|-------|-------|
+| `response_type` | `code` |
+| `client_id` | `skylight-mobile` |
+| `redirect_uri` | `skylight-family://welcome` (custom URL scheme / app deep link) |
+| `scope` | `everything` |
+| `state` | Random opaque string (CSRF protection) |
+| `code_challenge` | Base64url-encoded SHA-256 of the PKCE `code_verifier` (43 chars observed) |
+| `code_challenge_method` | `S256` |
+| `prompt` | `login` |
+
+When there is no active web session, `/oauth/authorize` responds **302** → `https://app.ourskylight.com/auth/session/new` (the hosted login page). After the user authenticates, the server redirects to `redirect_uri` with `?code=<authorization_code>&state=<state>`, and the app exchanges the code at `POST /oauth/token` with `grant_type=authorization_code`, `client_id=skylight-mobile`, `code`, `code_verifier`, and `redirect_uri`.
+
+> **Not yet captured:** because `redirect_uri` is a custom URL scheme (not HTTPS), a proxy cannot see the authorization-code redirect, and the `authorization_code` token exchange body has not been observed. The parameters above are confirmed from a captured `/oauth/authorize` request; the exchange step is the standard PKCE completion. Contributions of a full capture (e.g. via a deep-link interceptor) are welcome.
+
+There is **no client secret** — `skylight-mobile` is a public client, which is why PKCE is used.
 
 ---
 

@@ -36,16 +36,20 @@ components:
     skylight_auth:
       type: oauth2
       description: >
-        Public mobile client (client_id 'skylight-mobile', no client secret).
-        Observed traffic uses the refresh_token grant against /oauth/token,
-        which returns an opaque Bearer access token (~2h expiry) and a rotating
-        refresh token (scope 'everything'). The initial authorization step that
-        issues the first refresh token was NOT captured, so authorizationUrl is
-        unknown; the authorizationCode flow below is the closest standard fit.
-        See docs/auth.md for the full request/response shape.
+        Authorization Code grant with PKCE (S256) for the public mobile client
+        (client_id 'skylight-mobile', no client secret). The app opens
+        /oauth/authorize (params: response_type=code, redirect_uri=
+        'skylight-family://welcome', scope=everything, state, code_challenge,
+        code_challenge_method=S256, prompt=login); when no web session exists it
+        302-redirects to /auth/session/new to log in. The redirect_uri is a
+        custom URL scheme, so the returned authorization code and the
+        code->token exchange (grant_type=authorization_code, code_verifier)
+        were not captured. Thereafter the app refreshes via the refresh_token
+        grant against /oauth/token, yielding an opaque Bearer access token
+        (~2h expiry) and a rotating refresh token. See docs/auth.md.
       flows:
         authorizationCode:
-          authorizationUrl: <not captured>
+          authorizationUrl: https://app.ourskylight.com/oauth/authorize
           tokenUrl: https://app.ourskylight.com/oauth/token
           refreshUrl: https://app.ourskylight.com/oauth/token
           scopes:
@@ -827,6 +831,28 @@ paths:
           description: Not Modified
 
   # ---- Frames (by type) ----
+  /api/frames:
+    get:
+      tags: [ Frames ]
+      summary: List all frames
+      description: >
+        Lists every frame regardless of type. Observed returning 200 with a
+        JSON:API collection; the response body was not captured, so the item
+        schema is modelled on the typed list endpoints below.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/FrameResource" }
+        "304":
+          description: Not Modified
+
   /api/frames/tv:
     get:
       tags: [ Frames ]
