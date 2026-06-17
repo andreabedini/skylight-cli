@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Unofficial Skylight API (Community Reference)
-  version: 0.5.1
+  version: 0.6.0
   description: |
     Reverse-engineered reference for Skylight endpoints based on observed traffic.
     JSON:API-style resources are common (type, id, attributes, relationships).
@@ -234,7 +234,31 @@ components:
     # ---- Devices ----
     DeviceAttributes:
       type: object
-      description: Placeholder until a 200 body is captured.
+      description: Frame device (display) settings, observed from a GET by id.
+      properties:
+        name: { type: string, nullable: true }
+        timezone: { type: string, nullable: true, description: IANA timezone identifier. }
+        activated: { type: boolean, nullable: true }
+        category_id: { type: integer, nullable: true }
+        role: { type: string, nullable: true }
+        brightness: { type: integer, nullable: true, description: "0–255." }
+        slideshow_speed: { type: integer, nullable: true }
+        slideshow_style: { type: integer, nullable: true }
+        start_sound: { type: boolean, nullable: true }
+        show_caption: { type: boolean, nullable: true }
+        show_heart: { type: boolean, nullable: true }
+        blur_effect: { type: boolean, nullable: true }
+        current_album_id: { type: integer, nullable: true, description: "Observed -1 when none selected." }
+        sleeps_at: { type: string, nullable: true, description: "Local time, e.g. '21:00'." }
+        wakes_at: { type: string, nullable: true, description: "Local time, e.g. '06:00'." }
+        currently_sleeping: { type: boolean, nullable: true }
+        sleep_mode_on: { type: boolean, nullable: true }
+        side_by_side: { type: boolean, nullable: true }
+        sleep_mode: { type: string, nullable: true, description: "Observed 'screen_off'." }
+        sleep_sound: { type: string, nullable: true }
+        sleep_sound_volume: { type: integer, nullable: true }
+        nightlight: { type: boolean, nullable: true }
+        nightlight_brightness: { type: integer, nullable: true }
       additionalProperties: true
 
     DeviceResource:
@@ -567,8 +591,73 @@ components:
     # ---- User ----
     UserAttributes:
       type: object
-      description: Placeholder; fields will be added as captured.
+      properties:
+        email:
+          type: string
+          nullable: true
       additionalProperties: true
+
+    FrameUserAttributes:
+      type: object
+      description: Membership of a user in a frame.
+      properties:
+        status:
+          type: string
+          nullable: true
+          description: Observed 'approved'.
+        is_owner:
+          type: boolean
+          nullable: true
+      additionalProperties: true
+
+    FrameUserResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [ frame_user ]
+        id:
+          type: string
+        attributes:
+          $ref: "#/components/schemas/FrameUserAttributes"
+        relationships:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                data:
+                  $ref: "#/components/schemas/JsonApiResourceId"
+      required: [ type, id ]
+
+    SourceCalendarDetailAttributes:
+      type: object
+      description: >
+        Richer source-calendar representation (type 'source_calendar_detail')
+        returned by the set_default_for_new_events action.
+      properties:
+        label: { type: string, nullable: true }
+        source_id: { type: string, nullable: true, description: "Provider calendar URL/identifier (e.g. a CalDAV URL)." }
+        kind: { type: string, nullable: true, description: "Observed 'caldav'." }
+        role: { type: string, nullable: true, description: "Observed 'owner'." }
+        default_for_new_events: { type: boolean, nullable: true }
+        editable: { type: boolean, nullable: true }
+      additionalProperties: true
+
+    SourceCalendarDetailResource:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [ source_calendar_detail ]
+        id:
+          type: string
+        attributes:
+          $ref: "#/components/schemas/SourceCalendarDetailAttributes"
+        relationships:
+          type: object
+          additionalProperties: true
+      required: [ type, id ]
 
     UserResource:
       type: object
@@ -809,6 +898,69 @@ paths:
                     $ref: "#/components/schemas/UserResource"
         "304":
           description: Not Modified
+
+  /api/activities:
+    get:
+      tags: [ User ]
+      summary: List account activities
+      description: >
+        Paginated activity feed. Observed empty ("data" was []) with a `meta`
+        object carrying page info.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  meta:
+                    type: object
+                    properties:
+                      current_page: { type: integer }
+                      num_pages: { type: integer }
+
+  /api/month_in_reviews:
+    get:
+      tags: [ User ]
+      summary: List "month in review" summaries
+      description: "Observed returning an empty collection (data was [])."
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+
+  /api/reminder_profile:
+    get:
+      tags: [ User ]
+      summary: Get the reminder profile
+      description: "Singular resource; observed as null (data was null) when unset."
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
 
   /api/plus_access:
     get:
@@ -1235,6 +1387,100 @@ paths:
         "304":
           description: Not Modified
 
+  /api/frames/{frameId}/devices/{deviceId}:
+    get:
+      tags: [ Devices ]
+      summary: Get a device by id
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: deviceId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/DeviceResource" }
+        "304":
+          description: Not Modified
+
+  /api/frames/{frameId}/household_config:
+    get:
+      tags: [ Frames ]
+      summary: Get household configuration
+      description: Observed returning 304 (Not Modified); a 200 body has not been captured.
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "304":
+          description: Not Modified
+
+  /api/frames/{frameId}/users:
+    get:
+      tags: [ Frames ]
+      summary: List frame members
+      description: >
+        Frame membership (type 'frame_user'); the related 'user' resources
+        (with email) are returned in `included`.
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/FrameUserResource" }
+                  included:
+                    type: array
+                    items: { $ref: "#/components/schemas/UserResource" }
+
+  /api/frames/{frameId}/task_notification_settings:
+    get:
+      tags: [ Notifications ]
+      summary: Get task notification settings
+      description: Observed returning 304 (Not Modified); a 200 body has not been captured.
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "304":
+          description: Not Modified
+
   # ---- Lists ----
   /api/frames/{frameId}/lists:
     get:
@@ -1563,6 +1809,42 @@ paths:
                     items: { $ref: "#/components/schemas/SourceCalendarResource" }
         "304":
           description: Not Modified
+
+  /api/frames/{frameId}/source_calendars/set_default_for_new_events:
+    post:
+      tags: [ Calendars ]
+      summary: Set the default source calendar for new events
+      description: >
+        Marks the given source calendar as the default destination for newly
+        created events. Returns the full list of source calendars (type
+        'source_calendar_detail') with updated default_for_new_events flags.
+      parameters:
+        - in: path
+          name: frameId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Source calendar id to set as default.
+              required: [ id ]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/SourceCalendarDetailResource" }
 
   /api/frames/{frameId}/calendar_events:
     get:

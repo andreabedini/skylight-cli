@@ -111,6 +111,7 @@ python3 -m http.server 8080
 
 - **v0.2.0** — Categories, Devices, Lists, Task Box endpoints; Basic auth scheme.  
 - **v0.3.0** — Frames, Source Calendars, Calendar Events, Rewards, Reward Points; expanded schemas; corrected color formats; explicit `chore.status`.
+- **v0.6.0** — New endpoints from 2026-06 captures: `GET /api/activities`, `GET /api/month_in_reviews`, `GET /api/reminder_profile`, `GET /api/frames/{frameId}/devices/{deviceId}` (full device-settings schema), `GET /api/frames/{frameId}/users` (frame members), `GET /api/frames/{frameId}/household_config`, `GET /api/frames/{frameId}/task_notification_settings`, and `POST /api/frames/{frameId}/source_calendars/set_default_for_new_events`. Documented the OAuth authorization-code/PKCE login flow (`/oauth/authorize`).
 - **v0.5.1** — Schema corrections from 2026-04 captures: `chore.recurrence_set` is an array of RRULE strings (not a string); added `chore.series`/`timer_seconds`/`up_for_grabs` and chore relationships (`completed_category`, `habit_tracker`, `linked_task_group`); added calendar-event fields (`uid`, `status`, `recurring`, `recurring_config`, `master_event_id`, `source`, `editable`, `owner_email`, `supports_notification_settings`); documented the `category_detail` type and `profile_picture_urls`; corrected `GET /reward_points` to a bare (non-JSON:API) array of per-category balances. Added redacted examples for categories, calendar events, and reward points.
 
 ---
