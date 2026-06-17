@@ -884,6 +884,7 @@ paths:
   # ---- User ----
   /api/user:
     get:
+      operationId: userGet
       tags: [ User ]
       summary: Get current user
       responses:
@@ -901,6 +902,7 @@ paths:
 
   /api/activities:
     get:
+      operationId: userListActivities
       tags: [ User ]
       summary: List account activities
       description: >
@@ -927,6 +929,7 @@ paths:
 
   /api/month_in_reviews:
     get:
+      operationId: userListMonthInReviews
       tags: [ User ]
       summary: List "month in review" summaries
       description: "Observed returning an empty collection (data was [])."
@@ -946,6 +949,7 @@ paths:
 
   /api/reminder_profile:
     get:
+      operationId: userGetReminderProfile
       tags: [ User ]
       summary: Get the reminder profile
       description: "Singular resource; observed as null (data was null) when unset."
@@ -964,6 +968,7 @@ paths:
 
   /api/plus_access:
     get:
+      operationId: userGetPlusAccess
       tags: [ User ]
       summary: Get Plus/premium subscription status
 
@@ -1093,6 +1098,7 @@ paths:
   # ---- Chores ----
   /api/frames/{frameId}/chores:
     get:
+      operationId: choresList
       tags: [ Chores ]
       summary: List chores for a frame in a date range
       description: |
@@ -1136,6 +1142,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: choresCreate
       tags: [ Chores ]
       summary: Create a chore
       parameters:
@@ -1176,6 +1183,7 @@ paths:
 
   /api/frames/{frameId}/chores/{choreId}:
     put:
+      operationId: choresUpdate
       tags: [ Chores ]
       summary: Update a chore
       parameters:
@@ -1221,6 +1229,7 @@ paths:
                     type: array
                     items: { $ref: "#/components/schemas/CategoryResource" }
     delete:
+      operationId: choresDelete
       tags: [ Chores ]
       summary: Delete a chore
       description: |
@@ -1254,6 +1263,7 @@ paths:
   # ---- Categories ----
   /api/frames/{frameId}/categories:
     get:
+      operationId: categoriesList
       tags: [ Categories ]
       summary: List categories
       parameters:
@@ -1277,6 +1287,7 @@ paths:
 
   /api/frames/{frameId}/categories/{categoryId}:
     get:
+      operationId: categoriesGet
       tags: [ Categories ]
       summary: Get category by id
       parameters:
@@ -1298,6 +1309,7 @@ paths:
                 properties:
                   data: { $ref: "#/components/schemas/CategoryResource" }
     put:
+      operationId: categoriesUpdate
       tags: [ Categories ]
       summary: Update a category
       parameters:
@@ -1334,6 +1346,7 @@ paths:
 
   /api/frames/{frameId}/categories/{categoryId}/family_member:
     put:
+      operationId: categoriesUpdateFamilyMember
       tags: [ Categories ]
       summary: Update the family member profile for a category
       parameters:
@@ -1371,6 +1384,7 @@ paths:
   # ---- Devices ----
   /api/frames/{frameId}/devices:
     get:
+      operationId: devicesList
       tags: [ Devices ]
       summary: List devices
       parameters:
@@ -1394,6 +1408,7 @@ paths:
 
   /api/frames/{frameId}/devices/{deviceId}:
     get:
+      operationId: devicesGet
       tags: [ Devices ]
       summary: Get a device by id
       parameters:
@@ -1469,6 +1484,7 @@ paths:
 
   /api/frames/{frameId}/task_notification_settings:
     get:
+      operationId: notificationsGetTaskSettings
       tags: [ Notifications ]
       summary: Get task notification settings
       description: Observed returning 304 (Not Modified); a 200 body has not been captured.
@@ -1491,6 +1507,7 @@ paths:
   # ---- Lists ----
   /api/frames/{frameId}/lists:
     get:
+      operationId: listsList
       tags: [ Lists ]
       summary: List all lists
       parameters:
@@ -1512,6 +1529,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: listsCreate
       tags: [ Lists ]
       summary: Create a list
       parameters:
@@ -1544,6 +1562,7 @@ paths:
 
   /api/frames/{frameId}/lists/{listId}:
     get:
+      operationId: listsGet
       tags: [ Lists ]
       summary: Get list by id
       parameters:
@@ -1575,6 +1594,7 @@ paths:
                     items: { $ref: "#/components/schemas/ListItemResource" }
 
     put:
+      operationId: listsUpdate
       tags: [ Lists ]
       summary: Update a list
       parameters:
@@ -1609,6 +1629,7 @@ paths:
                 properties:
                   data: { $ref: "#/components/schemas/ListResource" }
     delete:
+      operationId: listsDelete
       tags: [ Lists ]
       summary: Delete a list
       parameters:
@@ -1628,6 +1649,7 @@ paths:
 
   /api/frames/{frameId}/lists/{listId}/list_items:
     post:
+      operationId: listsCreateItem
       tags: [ Lists ]
       summary: Create a list item
       parameters:
@@ -1664,6 +1686,7 @@ paths:
 
   /api/frames/{frameId}/lists/{listId}/list_items/bulk_update_section:
     put:
+      operationId: listsBulkUpdateSection
       tags: [ Lists ]
       summary: Bulk move list items to a section
       parameters:
@@ -1698,6 +1721,7 @@ paths:
 
   /api/frames/{frameId}/lists/{listId}/list_items/{itemId}:
     put:
+      operationId: listsUpdateItem
       tags: [ Lists ]
       summary: Update a list item
       parameters:
@@ -1739,6 +1763,7 @@ paths:
   # ---- Task Box ----
   /api/frames/{frameId}/task_box/items:
     get:
+      operationId: taskBoxList
       tags: [ TaskBox ]
       summary: List task box items
       parameters:
@@ -1760,6 +1785,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: taskBoxCreate
       tags: [ TaskBox ]
       summary: Create a task box item
       parameters:
@@ -1796,6 +1822,7 @@ paths:
   # ---- Calendars ----
   /api/frames/{frameId}/source_calendars:
     get:
+      operationId: calendarsListSources
       tags: [ Calendars ]
       summary: List source calendars
       parameters:
@@ -1819,6 +1846,7 @@ paths:
 
   /api/frames/{frameId}/source_calendars/set_default_for_new_events:
     post:
+      operationId: calendarsSetDefaultSource
       tags: [ Calendars ]
       summary: Set the default source calendar for new events
       description: >
@@ -1855,6 +1883,7 @@ paths:
 
   /api/frames/{frameId}/calendar_events:
     get:
+      operationId: calendarsListEvents
       tags: [ Calendars ]
       summary: List calendar events for a date range
       parameters:
@@ -1900,6 +1929,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: calendarsCreateEvent
       tags: [ Calendars ]
       summary: Create a calendar event
       parameters:
@@ -1932,6 +1962,7 @@ paths:
 
   /api/frames/{frameId}/calendar_events/{eventId}:
     put:
+      operationId: calendarsUpdateEvent
       tags: [ Calendars ]
       summary: Update a calendar event
       parameters:
@@ -1973,6 +2004,7 @@ paths:
                 properties:
                   data: { $ref: "#/components/schemas/CalendarEventResource" }
     delete:
+      operationId: calendarsDeleteEvent
       tags: [ Calendars ]
       summary: Delete a calendar event
       parameters:
@@ -1999,6 +2031,7 @@ paths:
   # ---- Rewards ----
   /api/frames/{frameId}/rewards:
     get:
+      operationId: rewardsList
       tags: [ Rewards ]
       summary: List rewards
       parameters:
@@ -2028,6 +2061,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: rewardsCreate
       tags: [ Rewards ]
       summary: Create a reward
       parameters:
@@ -2060,6 +2094,7 @@ paths:
 
   /api/frames/{frameId}/rewards/{rewardId}:
     get:
+      operationId: rewardsGet
       tags: [ Rewards ]
       summary: Get a reward by id
       parameters:
@@ -2081,6 +2116,7 @@ paths:
                 properties:
                   data: { $ref: "#/components/schemas/RewardResource" }
     patch:
+      operationId: rewardsUpdate
       tags: [ Rewards ]
       summary: Update a reward
       parameters:
@@ -2115,6 +2151,7 @@ paths:
                 properties:
                   data: { $ref: "#/components/schemas/RewardResource" }
     delete:
+      operationId: rewardsDelete
       tags: [ Rewards ]
       summary: Delete a reward
       parameters:
@@ -2134,6 +2171,7 @@ paths:
 
   /api/frames/{frameId}/rewards/{rewardId}/redeem:
     post:
+      operationId: rewardsRedeem
       tags: [ Rewards ]
       summary: Redeem a reward
       parameters:
@@ -2157,6 +2195,7 @@ paths:
 
   /api/frames/{frameId}/rewards/{rewardId}/unredeem:
     post:
+      operationId: rewardsUnredeem
       tags: [ Rewards ]
       summary: Un-redeem a reward
       parameters:
@@ -2180,6 +2219,7 @@ paths:
 
   /api/frames/{frameId}/reward_points:
     get:
+      operationId: rewardsListPoints
       tags: [ Rewards ]
       summary: List reward points
       description: >
@@ -2202,6 +2242,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: rewardsCreatePointEntry
       tags: [ Rewards ]
       summary: Create a reward point entry
       parameters:
@@ -2235,6 +2276,7 @@ paths:
   # ---- Meals ----
   /api/frames/{frameId}/meals/categories:
     get:
+      operationId: mealsListCategories
       tags: [ Meals ]
       summary: List meal categories
       parameters:
@@ -2258,6 +2300,7 @@ paths:
 
   /api/frames/{frameId}/meals/recipes:
     get:
+      operationId: mealsListRecipes
       tags: [ Meals ]
       summary: List meal recipes
       parameters:
@@ -2279,6 +2322,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: mealsCreateRecipe
       tags: [ Meals ]
       summary: Create a meal recipe
       parameters:
@@ -2311,6 +2355,7 @@ paths:
 
   /api/frames/{frameId}/meals/recipes/{recipeId}:
     get:
+      operationId: mealsGetRecipe
       tags: [ Meals ]
       summary: Get a meal recipe by id
       parameters:
@@ -2332,6 +2377,7 @@ paths:
                 properties:
                   data: { $ref: "#/components/schemas/MealRecipeResource" }
     patch:
+      operationId: mealsUpdateRecipe
       tags: [ Meals ]
       summary: Update a meal recipe
       parameters:
@@ -2366,6 +2412,7 @@ paths:
                 properties:
                   data: { $ref: "#/components/schemas/MealRecipeResource" }
     delete:
+      operationId: mealsDeleteRecipe
       tags: [ Meals ]
       summary: Delete a meal recipe
       parameters:
@@ -2385,6 +2432,7 @@ paths:
 
   /api/frames/{frameId}/meals/recipes/{recipeId}/add_to_grocery_list:
     post:
+      operationId: mealsAddRecipeToGroceryList
       tags: [ Meals ]
       summary: Add a recipe's ingredients to the grocery list
       parameters:
@@ -2402,6 +2450,7 @@ paths:
 
   /api/frames/{frameId}/meals/sittings:
     get:
+      operationId: mealsListSittings
       tags: [ Meals ]
       summary: List meal sittings for a date range
       description: |
@@ -2443,6 +2492,7 @@ paths:
         "304":
           description: Not Modified
     post:
+      operationId: mealsCreateSitting
       tags: [ Meals ]
       summary: Create a meal sitting
       parameters:
@@ -2475,6 +2525,7 @@ paths:
 
   /api/frames/{frameId}/meals/sittings/{sittingId}/instances:
     get:
+      operationId: mealsListSittingInstances
       tags: [ Meals ]
       summary: List instances of a recurring meal sitting
       parameters:
@@ -2501,6 +2552,7 @@ paths:
   # ---- Auth (session-based) ----
   /api/sessions:
     post:
+      operationId: authCreateSession
       tags: [ Auth ]
       summary: Create a session (login)
       description: |
@@ -2526,6 +2578,7 @@ paths:
 
   /api/users:
     post:
+      operationId: authRegister
       tags: [ Auth ]
       summary: Register a new user
       description: Exact request body fields not yet captured.
@@ -2548,6 +2601,7 @@ paths:
   # ---- Messages ----
   /api/frames/{frameId}/messages:
     get:
+      operationId: messagesList
       tags: [ Messages ]
       summary: List messages for a frame
       parameters:
@@ -2571,6 +2625,7 @@ paths:
 
   /api/frames/{frameId}/messages/{messageId}:
     get:
+      operationId: messagesGet
       tags: [ Messages ]
       summary: Get a message by id
       parameters:
@@ -2594,6 +2649,7 @@ paths:
 
   /api/frames/{frameId}/messages/{messageId}/comments:
     get:
+      operationId: messagesListComments
       tags: [ Messages ]
       summary: List comments on a message
       parameters:
@@ -2619,6 +2675,7 @@ paths:
 
   /api/frames/{frameId}/messages/{messageId}/all_likes:
     get:
+      operationId: messagesListLikes
       tags: [ Messages ]
       summary: List likes on a message
       parameters:
@@ -2645,6 +2702,7 @@ paths:
   # ---- Albums ----
   /api/frames/{frameId}/albums:
     get:
+      operationId: albumsList
       tags: [ Albums ]
       summary: List albums for a frame
       parameters:
@@ -2669,6 +2727,7 @@ paths:
   # ---- Automation ----
   /api/frames/{frameId}/auto_creation_intents/{intentId}:
     get:
+      operationId: automationGetIntent
       tags: [ Automation ]
       summary: Get an auto-creation intent by id
       parameters:
@@ -2693,6 +2752,7 @@ paths:
   # ---- System ----
   /api/avatars:
     get:
+      operationId: systemListAvatars
       tags: [ System ]
       summary: List available avatar images
       responses:
@@ -2711,6 +2771,7 @@ paths:
 
   /api/colors:
     get:
+      operationId: systemListColors
       tags: [ System ]
       summary: List available colours
       responses:
@@ -2730,6 +2791,7 @@ paths:
   # ---- Notifications ----
   /api/frames/{frameId}/event_notification_settings:
     get:
+      operationId: notificationsListEventSettings
       tags: [ Notifications ]
       summary: List event notification settings
       parameters:
