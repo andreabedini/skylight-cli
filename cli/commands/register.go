@@ -7,7 +7,6 @@ func init() {
 	rootCmd.AddCommand(authCmd)
 	rootCmd.AddCommand(albumsCmd)
 	albumsCmd.AddCommand(albumsGetApiFramesFrameIdCmd)
-	rootCmd.AddCommand(authCmd)
 	authCmd.AddCommand(authPostApiSessionsCmd)
 	authCmd.AddCommand(authPostApiUsersCmd)
 	rootCmd.AddCommand(automationCmd)
