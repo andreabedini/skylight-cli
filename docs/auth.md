@@ -47,6 +47,8 @@ The `login/` module builds a small helper that completes the PKCE flow on Linux 
 
 Use `--profile <name>` to target a specific profile, and `--base-url` (or `SKYLIGHT_BASE_URL`) to override the endpoint.
 
+> **Notes:** Run one `skylight-login login` at a time — a second concurrent login replaces the first's socket. The `callback` invocation receives the redirect URL as a command-line argument, so the single-use authorization `code` is briefly visible in the process list (`/proc/<pid>/cmdline`) until it exits; the matching PKCE `code_verifier` never leaves the login process.
+
 ---
 
 ## OAuth Token Refresh

@@ -22,6 +22,10 @@ func TestPersistTokensRoundTrip(t *testing.T) {
 	if c.DefaultProfile != "default" {
 		t.Fatalf("default profile = %q", c.DefaultProfile)
 	}
+	// auth_type must stay empty so the generated CLI applies its "bearer" default.
+	if c.Profiles["default"].AuthType != "" {
+		t.Fatalf("auth_type = %q, want empty", c.Profiles["default"].AuthType)
+	}
 
 	rt, err := os.ReadFile(refreshTokenPath("default"))
 	if err != nil {
@@ -37,6 +41,15 @@ func TestPersistTokensRoundTrip(t *testing.T) {
 	}
 	if info.Mode().Perm() != 0o600 {
 		t.Fatalf("config mode = %v, want 0600", info.Mode().Perm())
+	}
+
+	// The refresh sidecar holds a secret; it must be owner-only too.
+	rtInfo, err := os.Stat(refreshTokenPath("default"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rtInfo.Mode().Perm() != 0o600 {
+		t.Fatalf("refresh sidecar mode = %v, want 0600", rtInfo.Mode().Perm())
 	}
 }
 

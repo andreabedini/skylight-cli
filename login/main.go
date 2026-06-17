@@ -73,7 +73,8 @@ func runLogin(args []string) error {
 	if err != nil {
 		return err
 	}
-	tr, err := exchangeCode(http.DefaultClient, baseURL, code, verifier)
+	client := &http.Client{Timeout: 30 * time.Second}
+	tr, err := exchangeCode(client, baseURL, code, verifier)
 	if err != nil {
 		return err
 	}

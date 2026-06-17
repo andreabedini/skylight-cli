@@ -24,6 +24,10 @@ func socketPath() string {
 // listenForCallback removes any stale socket, listens, and waits up to timeout
 // for the scheme handler to deliver one callback URL. It always removes the
 // socket before returning.
+//
+// Only one login should run at a time: a second concurrent login would remove
+// this socket and bind its own at the same path, so the first would wait out
+// its deadline.
 func listenForCallback(timeout time.Duration) (string, error) {
 	path := socketPath()
 	_ = os.Remove(path)
@@ -31,6 +35,9 @@ func listenForCallback(timeout time.Duration) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("listen on %s: %w", path, err)
 	}
+	// Restrict the socket to the owner: it carries a single-use auth code.
+	// The runtime dir is already 0700, but the fallback config dir is 0755.
+	_ = os.Chmod(path, 0o600)
 	defer func() {
 		ln.Close()
 		_ = os.Remove(path)
@@ -44,6 +51,8 @@ func listenForCallback(timeout time.Duration) (string, error) {
 		return "", fmt.Errorf("waiting for callback: %w", err)
 	}
 	defer conn.Close()
+	// Bound the read so a peer that connects but never closes can't hang us.
+	_ = conn.SetReadDeadline(time.Now().Add(30 * time.Second))
 	data, err := io.ReadAll(conn)
 	if err != nil {
 		return "", err
