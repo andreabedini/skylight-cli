@@ -47,9 +47,9 @@ var mealsListSittingsCmd = &cobra.Command{
 func init() {
 	mealsListSittingsCmd.Flags().String("frame-id", "", "")
 	_ = mealsListSittingsCmd.MarkFlagRequired("frame-id")
-	mealsListSittingsCmd.Flags().String("date-min", "", "")
+	mealsListSittingsCmd.Flags().String("date-min", "", "Start of the date range (inclusive, YYYY-MM-DD). Observed required; requests omitting it were rejected.")
 	_ = mealsListSittingsCmd.MarkFlagRequired("date-min")
-	mealsListSittingsCmd.Flags().String("date-max", "", "")
+	mealsListSittingsCmd.Flags().String("date-max", "", "End of the date range (inclusive, YYYY-MM-DD). Observed required; requests omitting it were rejected.")
 	_ = mealsListSittingsCmd.MarkFlagRequired("date-max")
 	mealsListSittingsCmd.Flags().String("include", "", "")
 }

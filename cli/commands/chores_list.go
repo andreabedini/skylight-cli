@@ -53,8 +53,10 @@ var choresListCmd = &cobra.Command{
 func init() {
 	choresListCmd.Flags().String("frame-id", "", "")
 	_ = choresListCmd.MarkFlagRequired("frame-id")
-	choresListCmd.Flags().String("after", "", "")
-	choresListCmd.Flags().String("before", "", "")
+	choresListCmd.Flags().String("after", "", "Start of the date range (inclusive, YYYY-MM-DD). Observed required; requests omitting it were rejected.")
+	_ = choresListCmd.MarkFlagRequired("after")
+	choresListCmd.Flags().String("before", "", "End of the date range (inclusive, YYYY-MM-DD). Observed required; requests omitting it were rejected.")
+	_ = choresListCmd.MarkFlagRequired("before")
 	choresListCmd.Flags().String("include-late", "", "")
 	choresListCmd.Flags().String("filter", "", "")
 	_ = choresListCmd.RegisterFlagCompletionFunc("filter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
