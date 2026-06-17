@@ -45,7 +45,7 @@ type rawTokenPayload struct {
 
 // DeviceFlowLogin runs the OAuth2 device authorization grant (RFC 8628).
 func DeviceFlowLogin(clientID string) (*TokenResponse, error) {
-	scope := ""
+	scope := "everything"
 	form := url.Values{}
 	form.Set("client_id", clientID)
 	if scope != "" {
@@ -181,7 +181,7 @@ func ClientCredentialsLogin(clientID, clientSecret string) (*TokenResponse, erro
 	form.Set("grant_type", "client_credentials")
 	form.Set("client_id", clientID)
 	form.Set("client_secret", clientSecret)
-	scope := ""
+	scope := "everything"
 	if scope != "" {
 		form.Set("scope", scope)
 	}
