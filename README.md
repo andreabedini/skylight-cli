@@ -77,21 +77,21 @@ export SKYLIGHT_TOKEN=<BEARER_TOKEN>
 
 ## Usage
 
-Commands are grouped by API area; each operation is `<group> <method-and-path>`. Path parameters become required flags, query parameters become optional flags.
+Commands are grouped by API area; each operation is `<group> <verb>` (e.g. `frames list`, `chores update`, `calendars create-event`). Path parameters become required flags, query parameters become optional flags.
 
 ```bash
 # Current user
-skylight user get-api
+skylight user get
 
 # List your frames (by type)
-skylight frames get-api-frames-tv
+skylight frames list-tv
 
 # Chores for a frame on a given day
-skylight chores get-api-frames-frame-id \
+skylight chores list \
     --frame-id 5125905 --after 2026-06-17 --before 2026-06-17
 
 # Calendar events for a date range, with related resources included
-skylight calendars get-api-frames-frame-id-calendar-events \
+skylight calendars list-events \
     --frame-id 5125905 --date-min 2026-06-17 --date-max 2026-07-23 \
     --timezone Australia/Perth --include categories,calendar_account
 ```
