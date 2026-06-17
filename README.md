@@ -31,13 +31,17 @@ Most endpoints live under `/api/...` and follow **JSON:API** (`type`, `id`, `att
 
 ## Authentication
 
-Skylight’s mobile app uses a Bearer token:
+API requests carry an opaque OAuth 2.0 Bearer token:
 
 ```
 Authorization: Bearer <REDACTED>
 ```
 
-Tokens rotate. Treat them as secrets. See [docs/auth.md](docs/auth.md) for guidance.
+The app authenticates as a **public OAuth client** (`client_id=skylight-mobile`, **no client secret**). Observed traffic refreshes the access token with the **`refresh_token` grant** against `POST /oauth/token`; the response returns a Bearer access token (~2 h expiry) and a **rotating** refresh token (scope `everything`). The initial login/authorization step that mints the first refresh token has not been captured. Older traffic also used `Authorization: Basic <opaque token>`.
+
+> Note: this is **not** the OAuth client-credentials grant (which would need a client secret and issues no refresh token).
+
+Treat tokens as secrets. See [docs/auth.md](docs/auth.md) for the full request/response shape and capture steps.
 
 ## Example Endpoint
 

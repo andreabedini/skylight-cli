@@ -69,7 +69,8 @@ Everything under `cli/commands/` and `cli/runtime/` is marked `// Code generated
 ## API conventions (from observed traffic)
 
 - Most resources are nested under `/api/frames/{frameId}/...` and follow **JSON:API** (`type`, `id`, `attributes`, `relationships`).
-- Auth is an opaque OAuth 2.0 Bearer token (not a JWT); access tokens expire after 7200s and refresh tokens rotate on every use. Some older traffic uses `Authorization: Basic <opaque token>` (not username:password). See `docs/auth.md`.
+- Auth is an opaque OAuth 2.0 Bearer token (not a JWT); access tokens expire after 7200s and refresh tokens rotate on every use. Observed login is the **`refresh_token` grant** for a **public client** (`client_id=skylight-mobile`, no secret) against `POST /oauth/token`. Some older traffic uses `Authorization: Basic <opaque token>` (not username:password). See `docs/auth.md`.
+- **Caveat — generated CLI auth does not match observed auth.** `cli/runtime/auth.go` implements device-code and client-credentials flows (scaffolded by `onlycli` from the spec's `securityScheme`), so `skylight auth login` likely won't authenticate against the real service. In practice, set a captured token directly: `skylight config set <profile>.token <bearer>` or `SKYLIGHT_TOKEN=...`. The real refresh flow (`docs/auth.md`) isn't implemented.
 
 ## Editing rules
 

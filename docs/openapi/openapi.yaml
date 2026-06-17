@@ -26,14 +26,30 @@ tags:
   - name: Automation
   - name: System
 
+# All API endpoints require the Bearer access token (see securitySchemes).
+# The /oauth/token endpoint itself is unauthenticated.
+security:
+  - skylight_auth: [ everything ]
+
 components:
   securitySchemes:
     skylight_auth:
       type: oauth2
+      description: >
+        Public mobile client (client_id 'skylight-mobile', no client secret).
+        Observed traffic uses the refresh_token grant against /oauth/token,
+        which returns an opaque Bearer access token (~2h expiry) and a rotating
+        refresh token (scope 'everything'). The initial authorization step that
+        issues the first refresh token was NOT captured, so authorizationUrl is
+        unknown; the authorizationCode flow below is the closest standard fit.
+        See docs/auth.md for the full request/response shape.
       flows:
-        clientCredentials:
+        authorizationCode:
+          authorizationUrl: <not captured>
           tokenUrl: https://app.ourskylight.com/oauth/token
-          scopes: {}
+          refreshUrl: https://app.ourskylight.com/oauth/token
+          scopes:
+            everything: Full access (observed scope value)
 
   schemas:
     JsonApiResourceId:
