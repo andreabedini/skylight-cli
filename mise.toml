@@ -4,11 +4,17 @@ _.path = ["bin"]
 [tools]
 "github:daveshanley/vacuum" = "latest"
 "github:onlycli/onlycli" = "latest"
+"npm:@redocly/cli" = "latest"
 
 [tasks.generate-cli]
 run = '''
 onlycli generate --spec docs/openapi/openapi.yaml --name skylight --out cli
 cd cli && go mod tidy
+'''
+
+[tasks.generate-docs]
+run = '''
+redocly build-docs docs/openapi/openapi.yaml --config docs/redocly.yaml -o docs/redoc-static.html
 '''
 
 [tasks.build]

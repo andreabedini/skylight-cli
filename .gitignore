@@ -9,4 +9,7 @@ examples/*-raw*.json
 # Redacted, shareable evidence belongs in examples/.
 captures/
 
+# Built CLI binary (mise builds to bin/, which is on PATH; a plain
+# `go build` in cli/ produces cli/skylight)
+/bin/skylight
 cli/skylight
