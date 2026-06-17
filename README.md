@@ -21,10 +21,10 @@ Tooling is pinned in `mise.toml` ([mise](https://mise.jdx.dev/)). Run once to ge
 
 ```bash
 mise install
-mise run build      # compiles cli/ -> cli/skylight
+mise run build      # compiles to bin/skylight (on your PATH inside the mise env)
 ```
 
-Or build directly with Go (1.22+): `cd cli && go build -o skylight .`
+`mise.toml` puts `bin/` on the path, so once built you can call `skylight` directly. Or build with Go (1.22+): `cd cli && go build -o ../bin/skylight .`
 
 ## Authenticate
 
@@ -32,8 +32,8 @@ The API authenticates with an opaque OAuth 2.0 **Bearer** token. The mobile app 
 
 ```bash
 # Save a token under the "default" profile and select it
-./cli/skylight config set default.token <BEARER_TOKEN>
-./cli/skylight config use-profile default
+skylight config set default.token <BEARER_TOKEN>
+skylight config use-profile default
 
 # …or pass it per-invocation via the environment
 export SKYLIGHT_TOKEN=<BEARER_TOKEN>
@@ -49,22 +49,22 @@ Commands are grouped by API area; each operation is `<group> <method-and-path>`.
 
 ```bash
 # Current user
-./cli/skylight user get-api
+skylight user get-api
 
 # List your frames (by type)
-./cli/skylight frames get-api-frames-tv
+skylight frames get-api-frames-tv
 
 # Chores for a frame on a given day
-./cli/skylight chores get-api-frames-frame-id \
+skylight chores get-api-frames-frame-id \
     --frame-id 5125905 --after 2026-06-17 --before 2026-06-17
 
 # Calendar events for a date range, with related resources included
-./cli/skylight calendars get-api-frames-frame-id-calendar-events \
+skylight calendars get-api-frames-frame-id-calendar-events \
     --frame-id 5125905 --date-min 2026-06-17 --date-max 2026-07-23 \
     --timezone Australia/Perth --include categories,calendar_account
 ```
 
-Run `./cli/skylight --help`, or `<group> --help`, to discover commands.
+Run `skylight --help`, or `<group> --help`, to discover commands.
 
 **Global flags** (available on every command):
 
@@ -87,8 +87,8 @@ Run `./cli/skylight --help`, or `<group> --help`, to discover commands.
 `docs/openapi/openapi.yaml` is the source of truth. `onlycli` generates the entire `cli/` tree from it — so the way to change the CLI is to edit the spec and regenerate (never hand-edit the generated Go):
 
 ```bash
-mise run generate   # regenerate cli/ from the spec
-mise run build      # rebuild the binary
+mise run generate-cli   # regenerate cli/ from the spec
+mise run build          # rebuild the binary (-> bin/skylight)
 ```
 
 The spec itself is reverse-engineered from observed traffic and is intentionally incomplete; known gaps are tracked in [TODO.md](TODO.md).
@@ -99,7 +99,7 @@ The spec itself is reverse-engineered from observed traffic and is intentionally
 - **Auth**: [docs/auth.md](docs/auth.md) — login/refresh flow and how to capture a token.
 - **Examples**: [`examples/`](examples/) — redacted request/response samples.
 - **Browse the spec**:
-  - [Swagger UI](docs/swagger.html) · [Redoc](docs/redoc.html)
+  - [Swagger UI](docs/swagger.html) (interactive) · [Redoc](docs/redoc-static.html) (self-contained, built with `mise run generate-docs`)
   - Locally: `python3 -m http.server 8080`, then open <http://localhost:8080/docs/swagger.html>
   - On GitHub Pages: `https://andreabedini.github.io/Skylight/docs/swagger.html`
 
