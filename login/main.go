@@ -32,18 +32,21 @@ func main() {
 
 func runLogin(args []string) error {
 	fs := flag.NewFlagSet("login", flag.ContinueOnError)
-	baseURLFlag := fs.String("base-url", "", "override base URL (default: $SKYLIGHT_BASE_URL or https://app.ourskylight.com)")
+	baseURLFlag := fs.String("base-url", "", "override base URL (default: profile, $SKYLIGHT_BASE_URL, or https://app.ourskylight.com)")
+	profileFlag := fs.String("profile", "", "config profile to write (default: active profile)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 
+	cfg, err := loadConfig()
+	if err != nil {
+		return err
+	}
+	profileName := targetProfileName(cfg, *profileFlag)
+
 	baseURL := *baseURLFlag
 	if baseURL == "" {
-		if env := os.Getenv("SKYLIGHT_BASE_URL"); env != "" {
-			baseURL = env
-		} else {
-			baseURL = "https://app.ourskylight.com"
-		}
+		baseURL = resolveBaseURL(cfg.Profiles[profileName])
 	}
 
 	verifier, err := GenerateVerifier()
@@ -75,9 +78,10 @@ func runLogin(args []string) error {
 		return err
 	}
 
-	// Checkpoint build: print to confirm the exchange works.
-	// Task 5 replaces this with persistTokens.
-	fmt.Println("access_token:", tr.AccessToken)
+	if err := persistTokens(profileName, tr); err != nil {
+		return err
+	}
+	fmt.Printf("Logged in. Access token saved to profile %q in %s\n", profileName, configPath())
 	return nil
 }
 
