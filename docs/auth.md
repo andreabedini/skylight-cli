@@ -33,9 +33,19 @@ GET https://app.ourskylight.com/oauth/authorize
 
 When there is no active web session, `/oauth/authorize` responds **302** → `https://app.ourskylight.com/auth/session/new` (the hosted login page). After the user authenticates, the server redirects to `redirect_uri` with `?code=<authorization_code>&state=<state>`, and the app exchanges the code at `POST /oauth/token` with `grant_type=authorization_code`, `client_id=skylight-mobile`, `code`, `code_verifier`, and `redirect_uri`.
 
-> **Not yet captured:** because `redirect_uri` is a custom URL scheme (not HTTPS), a proxy cannot see the authorization-code redirect, and the `authorization_code` token exchange body has not been observed. The parameters above are confirmed from a captured `/oauth/authorize` request; the exchange step is the standard PKCE completion. Contributions of a full capture (e.g. via a deep-link interceptor) are welcome.
+> **Since observed:** the authorization-code redirect and the token exchange have now been exercised end-to-end on Linux via the [`skylight-login`](#logging-in-with-skylight-login) helper (which captures the custom-scheme redirect with a local socket). The server redirects to `skylight-family://welcome?code=…&state=…`, and the exchange at `POST /oauth/token` succeeds with `grant_type=authorization_code`, `client_id=skylight-mobile`, `code`, `code_verifier`, and `redirect_uri=skylight-family://welcome` — the standard PKCE completion, with no device-context fields required.
 
 There is **no client secret** — `skylight-mobile` is a public client, which is why PKCE is used.
+
+## Logging in with `skylight-login`
+
+The `login/` module builds a small helper that completes the PKCE flow on Linux desktops and writes the bearer token into the CLI config:
+
+1. Build and install: `cd login && go build -o "$HOME/.local/bin/skylight-login" .`
+2. Register the `skylight-family://` scheme handler to run `skylight-login callback %u` (see the `.desktop` entry under `~/.local/share/applications/`).
+3. Run `skylight-login login`. It opens the browser at `/oauth/authorize`, and when you finish logging in the handler relays the `skylight-family://welcome?code=…&state=…` callback back over a Unix socket (`$XDG_RUNTIME_DIR/skylight-login.sock`). The helper verifies `state`, exchanges the code at `POST /oauth/token`, writes `access_token` into the active profile in `~/.config/skylight/config.json`, and saves the rotating `refresh_token` to `~/.config/skylight/<profile>.refresh`.
+
+Use `--profile <name>` to target a specific profile, and `--base-url` (or `SKYLIGHT_BASE_URL`) to override the endpoint.
 
 ---
 
