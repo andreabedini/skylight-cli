@@ -10,13 +10,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var framesGetApiFramesFrameIdUsersCmd = &cobra.Command{
-	Use:   "get-api-frames-frame-id-users",
-	Short: "List frame members",
+var framesGetCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get frame by id",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := runtime.NewClientFromConfig(cmd)
 
-		path := "/api/frames/{frameId}/users"
+		path := "/api/frames/{frameId}"
 		frameIdVal, _ := cmd.Flags().GetString("frame-id")
 		if frameIdVal == "" {
 			return fmt.Errorf("required flag --%s not set", "frame-id")
@@ -36,6 +36,6 @@ var framesGetApiFramesFrameIdUsersCmd = &cobra.Command{
 }
 
 func init() {
-	framesGetApiFramesFrameIdUsersCmd.Flags().String("frame-id", "", "")
-	_ = framesGetApiFramesFrameIdUsersCmd.MarkFlagRequired("frame-id")
+	framesGetCmd.Flags().String("frame-id", "", "")
+	_ = framesGetCmd.MarkFlagRequired("frame-id")
 }

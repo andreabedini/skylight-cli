@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var framesGetApiCmd = &cobra.Command{
-	Use:   "get-api",
+var framesListCmd = &cobra.Command{
+	Use:   "list",
 	Short: "List all frames",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := runtime.NewClientFromConfig(cmd)

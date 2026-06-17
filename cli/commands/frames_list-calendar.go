@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var framesGetApiFramesCalendarCmd = &cobra.Command{
-	Use:   "get-api-frames-calendar",
+var framesListCalendarCmd = &cobra.Command{
+	Use:   "list-calendar",
 	Short: "List calendar-type frames",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := runtime.NewClientFromConfig(cmd)

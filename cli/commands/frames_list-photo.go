@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var framesGetApiFramesPhotoCmd = &cobra.Command{
-	Use:   "get-api-frames-photo",
+var framesListPhotoCmd = &cobra.Command{
+	Use:   "list-photo",
 	Short: "List photo-type frames",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := runtime.NewClientFromConfig(cmd)

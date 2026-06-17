@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var framesGetApiFramesFrameIdHouseholdConfigCmd = &cobra.Command{
-	Use:   "get-api-frames-frame-id-household-config",
+var framesGetHouseholdConfigCmd = &cobra.Command{
+	Use:   "get-household-config",
 	Short: "Get household configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := runtime.NewClientFromConfig(cmd)
@@ -36,6 +36,6 @@ var framesGetApiFramesFrameIdHouseholdConfigCmd = &cobra.Command{
 }
 
 func init() {
-	framesGetApiFramesFrameIdHouseholdConfigCmd.Flags().String("frame-id", "", "")
-	_ = framesGetApiFramesFrameIdHouseholdConfigCmd.MarkFlagRequired("frame-id")
+	framesGetHouseholdConfigCmd.Flags().String("frame-id", "", "")
+	_ = framesGetHouseholdConfigCmd.MarkFlagRequired("frame-id")
 }
