@@ -51,6 +51,53 @@ Use `--profile <name>` to target a specific profile, and `--base-url` (or `SKYLI
 
 ---
 
+## Hosted Web Login (the `/auth/session` flow)
+
+`app.ourskylight.com` is its own identity provider. When `/oauth/authorize` has no active web session it 302-redirects (see above) to the **hosted login page** at `/auth/session/new`. The web app at `app.ourskylight.com` uses this same flow directly (no OAuth, no bearer token). It is a **plain Rails cookie-session login** — *not* OAuth — observed as three requests:
+
+**1. `GET /auth/session/new` → 200**
+
+Serves the HTML login form and sets an anonymous session cookie:
+
+```
+set-cookie: _skylight_cloud_session=REDACTED; path=/; secure; httponly; samesite=lax
+```
+
+The page embeds the Rails CSRF token in a hidden form field (and, separately, a `<meta name="csrf-token">` tag for XHR use):
+
+```html
+<form action="/auth/session" accept-charset="UTF-8" method="post">
+  <input type="hidden" name="authenticity_token" value="REDACTED">
+  <input required type="email"    name="email"    id="email">
+  <input required type="password" name="password" id="password">
+</form>
+```
+
+**2. `POST /auth/session` → 302** → `Location: /auth/session/success`
+
+Standard form POST, carrying the cookie from step 1:
+
+```
+Content-Type: application/x-www-form-urlencoded
+
+authenticity_token=<from the form>&email=<email>&password=<password>
+```
+
+On success the server **rotates the session cookie** (a fresh `_skylight_cloud_session` is set in the response) and redirects.
+
+**3. `GET /auth/session/success` → 200**
+
+The post-login landing page. Rotates the session cookie once more. No token is exposed in the body — the credential is the cookie itself.
+
+Key points:
+
+- **The credential is the `_skylight_cloud_session` cookie**, a Rails encrypted/signed session (the `…--…--…` shape is the Rails 5.2+ `AES-GCM` encrypted-cookie format). This flow yields **no bearer/access token** — it is entirely separate from the OAuth flows above.
+- `authenticity_token` (the hidden form field) is the Rails CSRF token; it is **distinct** from the `csrf-token` `<meta>` tag (the latter is for `X-CSRF-Token` on subsequent XHR/`fetch` calls).
+- The session cookie is `httponly; secure; samesite=lax`, so it is sent automatically by the browser on same-site navigations but is not readable from JavaScript.
+- **Not yet observed:** whether the JSON:API backend (`/api/...`) accepts this session cookie directly, or whether the web app exchanges it for a bearer token. The capture this is based on contains only the `/auth/session/*` requests (no `/api/...` traffic).
+
+---
+
 ## OAuth Token Refresh
 
 The app refreshes its access token via a standard OAuth 2.0 refresh-token grant:
