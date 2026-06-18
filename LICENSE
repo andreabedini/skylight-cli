@@ -2,3 +2,8 @@ Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
 https://creativecommons.org/licenses/by-nc/4.0/
 
 You are free to share and adapt with attribution for non-commercial purposes.
+
+Scope: this license covers the documentation and reference content in this
+repository — the OpenAPI spec (docs/openapi/), the guides and viewers in docs/,
+and the redacted examples/ and captures/. The generated Go CLI under cli/ is
+licensed separately under the MIT License; see cli/LICENSE.

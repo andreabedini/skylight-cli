@@ -148,7 +148,10 @@ New endpoints are added by capturing traffic from your own account, redacting it
 
 ## License
 
-Released under CC BY-NC 4.0 — see [LICENSE](LICENSE).
+This repository is dual-licensed by component:
+
+- **Documentation & reference content** — the OpenAPI spec (`docs/openapi/`), guides and viewers in `docs/`, and the redacted `examples/` and `captures/` — are released under **CC BY-NC 4.0**; see [LICENSE](LICENSE).
+- **The generated Go CLI** (`cli/`) is released under the **MIT License**; see [cli/LICENSE](cli/LICENSE).
 
 ---
 

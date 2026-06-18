@@ -2,6 +2,9 @@ openapi: 3.0.3
 info:
   title: Unofficial Skylight API (Community Reference)
   version: 0.6.0
+  license:
+    name: CC BY-NC 4.0
+    url: https://creativecommons.org/licenses/by-nc/4.0/
   description: |
     Reverse-engineered reference for Skylight endpoints based on observed traffic.
     JSON:API-style resources are common (type, id, attributes, relationships).
